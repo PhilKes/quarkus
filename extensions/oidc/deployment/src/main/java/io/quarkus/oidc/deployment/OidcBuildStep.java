@@ -56,6 +56,7 @@ import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.ExtensionSslNativeSupportBuildItem;
 import io.quarkus.deployment.builditem.RunTimeConfigurationDefaultBuildItem;
+import io.quarkus.deployment.builditem.RuntimeConfigSetupCompleteBuildItem;
 import io.quarkus.deployment.builditem.SystemPropertyBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.dev.devservices.GlobalDevServicesConfig;
@@ -318,6 +319,13 @@ public class OidcBuildStep {
 
     private static boolean isTenantIdentityProviderType(InjectionPointInfo ip) {
         return TENANT_IDENTITY_PROVIDER_NAME.equals(ip.getRequiredType().name());
+    }
+
+    @Record(ExecutionTime.RUNTIME_INIT)
+    @Consume(RuntimeConfigSetupCompleteBuildItem.class)
+    @BuildStep
+    void setupBackChannelLogout(OidcRecorder recorder, VertxWebRouterBuildItem routerBuildItem) {
+        recorder.setupBackChannelLogout(routerBuildItem.getMainRouter());
     }
 
     @Record(ExecutionTime.RUNTIME_INIT)
